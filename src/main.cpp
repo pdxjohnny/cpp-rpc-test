@@ -2,6 +2,10 @@
 
 int main (int argc, char ** argv, char ** env) {
     printf("Hello rpc lib %d\n", rpc_test());
-    rpc_start_server(NULL);
+
+    struct rpc_handler handlers[] = {
+        NULL
+    };
+    rpc_start_server(handlers);
 }
 
