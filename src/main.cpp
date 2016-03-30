@@ -6,6 +6,7 @@ int main (int argc, char ** argv, char ** env) {
     printf("Hello rpc lib %d\n", rpc_test());
 
     // Create a pipe so we can tell the server when to stop running
+    // Read end of the pipe is index 0 write end is index 1
     int pipe_fd[2];
     err = pipe(pipe_fd);
     if (err == -1) {
@@ -36,24 +37,30 @@ int main (int argc, char ** argv, char ** env) {
 
     case 0:
         // Clild
+        // Close the write end of the pipe, the server only reads
         close(pipe_fd[1]);
-        printf("About to start server\n");
+        // Start the server
         server_exit = rpc_start_server(&config);
-        printf("Server exited with status %d\n", server_exit);
+        // Report the exit status and exit
+        printf("Server (pid %d) exited with status %d\n", getpid(), server_exit);
+        return EXIT_SUCCESS;
 
     default:
         // Parent
-        // We dont read so just close the read end
+        // Close the read end of the pipe, the parent only writes
         close(pipe_fd[0]);
         // Make a request (for now just sleep a bit)
-        // sleep(1);
+        sleep(1);
         // Send some data trough, the server will stop once we do
         char stop_msg[] = "stop";
         write(pipe_fd[1], stop_msg, strlen(stop_msg));
+        // Data was send so close the write end of the pipe
         close(pipe_fd[1]);
-        printf("Client exited with status 0\n");
+        // Report the exit status and exit
+        printf("Client (pid %d) exited with status 0\n", getpid());
+        return EXIT_SUCCESS;
     }
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
