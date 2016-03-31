@@ -14,6 +14,9 @@ int main (int argc, char ** argv, char ** env) {
     // Client Tests
     RPC_TEST(test_client_contact_server);
 
+    // Server Benchmarks
+    RPC_TEST(benchmark_server_connections_per_minute);
+
     return EXIT_SUCCESS;
 }
 
