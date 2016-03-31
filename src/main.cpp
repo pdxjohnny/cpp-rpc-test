@@ -7,10 +7,18 @@ int main (int argc, char ** argv, char ** env) {
 
     // Create a pipe so we can tell the server when to stop running
     // Read end of the pipe is index 0 write end is index 1
-    int pipe_fd[2];
-    err = pipe(pipe_fd);
+    int pipe_stop[2];
+    err = pipe(pipe_stop);
     if (err == -1) {
-        printf("Error creating pipe %d\n", errno);
+        printf("Error creating stop pipe %d\n", errno);
+    }
+
+    // Create a pipe so that the server can report its port to us
+    // Read end of the pipe is index 0 write end is index 1
+    int pipe_port[2];
+    err = pipe(pipe_port);
+    if (err == -1) {
+        printf("Error creating port pipe %d\n", errno);
     }
 
     // Configure the server
@@ -18,11 +26,15 @@ int main (int argc, char ** argv, char ** env) {
     struct rpc_handler handlers[] = {
         NULL
     };
+    int comm[] = {
+        pipe_stop[RPC_COMM_READ],
+        pipe_port[RPC_COMM_WRITE]
+    };
     struct rpc_server_config server_config = {
         .addr = addr,
         .port = 0,
         .handlers = handlers,
-        .comm = pipe_fd
+        .comm = comm
     };
 
     // Configure the client
@@ -59,7 +71,7 @@ int main (int argc, char ** argv, char ** env) {
     default:
         // Parent
         // Read the port from the pipe
-        read(pipe_fd[RPC_COMM_READ], buffer, 12);
+        read(pipe_port[RPC_COMM_READ], buffer, 12);
         // Convert the string to a port number
         port = atoi(buffer);
         // Set the client port to be what the server reports its port is
@@ -74,9 +86,9 @@ int main (int argc, char ** argv, char ** env) {
         printf("Client (pid %d) exited with status %d\n", getpid(), client_exit);
         // Send some data trough, the server will stop once we do
         char stop_msg[] = "stop";
-        write(pipe_fd[RPC_COMM_WRITE], stop_msg, strlen(stop_msg));
+        write(pipe_stop[RPC_COMM_WRITE], stop_msg, strlen(stop_msg));
         // Data was send so close the write end of the pipe
-        close(pipe_fd[RPC_COMM_WRITE]);
+        close(pipe_stop[RPC_COMM_WRITE]);
         return EXIT_SUCCESS;
     }
 
