@@ -6,3 +6,18 @@
 
 #include <librpc.h>
 
+#define RPC_TEST(test_name) \
+({\
+    err = test_name();\
+    if (err == -1) {\
+        printf("test_name exited with status %d", errno);\
+    }\
+})
+
+
+// Server Tests
+int test_server_correct_port();
+
+// Client Tests
+int test_client_contact_server();
+
