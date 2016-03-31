@@ -22,6 +22,7 @@ int main (int argc, char ** argv, char ** env) {
     }
 
     // Configure the server
+    uint16_t port = 4000;
     char addr[] = "127.0.0.1";
     struct rpc_handler handlers[] = {
         NULL
@@ -32,7 +33,7 @@ int main (int argc, char ** argv, char ** env) {
     };
     struct rpc_server_config server_config = {
         .addr = addr,
-        .port = 0,
+        .port = port,
         .handlers = handlers,
         .comm = comm
     };
@@ -51,7 +52,6 @@ int main (int argc, char ** argv, char ** env) {
 
     // The server will send back the port number through comm
     char buffer[12];
-    int port;
 
     // Fork so that the server is running in the background
     switch (fork()) {
