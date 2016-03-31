@@ -18,15 +18,28 @@ int main (int argc, char ** argv, char ** env) {
     struct rpc_handler handlers[] = {
         NULL
     };
-    struct rpc_server_config config = {
+    struct rpc_server_config server_config = {
         .addr = addr,
         .port = 0,
         .handlers = handlers,
-        .comm = pipe_fd[0],
+        .comm = pipe_fd
+    };
+
+    // Configure the client
+    struct rpc_client_config client_config = {
+        .addr = addr,
+        .port = 0,
     };
 
     // Store the server exit status in this variable
     int server_exit;
+
+    // Store the client exit status in this variable
+    int client_exit;
+
+    // The server will send back the port number through comm
+    char buffer[12];
+    int port;
 
     // Fork so that the server is running in the background
     switch (fork()) {
@@ -37,27 +50,33 @@ int main (int argc, char ** argv, char ** env) {
 
     case 0:
         // Clild
-        // Close the write end of the pipe, the server only reads
-        close(pipe_fd[1]);
         // Start the server
-        server_exit = rpc_start_server(&config);
+        server_exit = rpc_start_server(&server_config);
         // Report the exit status and exit
         printf("Server (pid %d) exited with status %d\n", getpid(), server_exit);
         return EXIT_SUCCESS;
 
     default:
         // Parent
-        // Close the read end of the pipe, the parent only writes
-        close(pipe_fd[0]);
-        // Make a request (for now just sleep a bit)
-        sleep(1);
+        // Read the port from the pipe
+        read(pipe_fd[RPC_COMM_READ], buffer, 12);
+        // Convert the string to a port number
+        port = atoi(buffer);
+        // Set the client port to be what the server reports its port is
+        client_config.port = port;
+        // Make a request
+        printf("Client will connect to port %d\n", client_config.port);
+        // Sleep a bit to allow server to start
+        sleep(2);
+        // Make the request
+        client_exit = rpc_client(&client_config);
+        // Report the exit status and exit
+        printf("Client (pid %d) exited with status %d\n", getpid(), client_exit);
         // Send some data trough, the server will stop once we do
         char stop_msg[] = "stop";
-        write(pipe_fd[1], stop_msg, strlen(stop_msg));
+        write(pipe_fd[RPC_COMM_WRITE], stop_msg, strlen(stop_msg));
         // Data was send so close the write end of the pipe
-        close(pipe_fd[1]);
-        // Report the exit status and exit
-        printf("Client (pid %d) exited with status 0\n", getpid());
+        close(pipe_fd[RPC_COMM_WRITE]);
         return EXIT_SUCCESS;
     }
 
