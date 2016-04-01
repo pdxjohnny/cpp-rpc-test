@@ -1,4 +1,4 @@
-#include "rpc-test.h"
+#include "rpc-benchmark.h"
 
 int benchmark_server_connections_per_minute() {
     int err;
@@ -54,7 +54,7 @@ int benchmark_server_connections_per_minute() {
     double diff = difftime(end, start);
 
     // Report
-    printf("benchmark_server_connections_per_minute: %d connections in %f\n", num_con, diff);
+    printf("benchmark_server_connections_per_minute: %d connections in %0.02f seconds\n", num_con, diff);
 
     // Stop the server before we (the client) exit
     rpc_server_stop(&server_config);

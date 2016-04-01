@@ -11,8 +11,6 @@
 #define RPC_TEST_SERVER
 #define RPC_TEST_CLIENT
 #define RPC_TEST_MESSAGE
-// Which benchmarks to run
-#define RPC_BENCHMARK_SERVER
 
 #define RPC_TEST(test_name) \
 ({\
@@ -45,7 +43,4 @@ int test_client_contact_server();
 
 // Message Tests
 int test_message_parse();
-
-// Server Benchmarks
-int benchmark_server_connections_per_minute();
 

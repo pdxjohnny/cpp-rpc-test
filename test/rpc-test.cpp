@@ -23,11 +23,6 @@ int main (int argc, char ** argv, char ** env) {
     RPC_TEST(test_message_parse);
 #endif
 
-#ifdef RPC_BENCHMARK_SERVER
-    // Server Benchmarks
-    RPC_TEST(benchmark_server_connections_per_minute);
-#endif
-
     return EXIT_SUCCESS;
 }
 
