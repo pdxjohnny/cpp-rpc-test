@@ -18,7 +18,21 @@
 ({\
     err = test_name();\
     if (err == -1) {\
-        printf("test_name exited with status %d", errno);\
+        printf(#test_name " exited with status %d\n", errno);\
+    }\
+})
+
+#define RPC_TEST_EQ(var, should_be) \
+({\
+    if (var != should_be) {\
+        printf(#var " should have been " #should_be "\n");\
+    }\
+})
+
+#define RPC_TEST_STR_EQ(var, should_be) \
+({\
+    if (0 != strcmp(var, should_be)) {\
+        printf(#var " should have been " #should_be "\n");\
     }\
 })
 
