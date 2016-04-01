@@ -14,6 +14,7 @@ int benchmark_server_connections_per_minute() {
         .addr = addr,
         .port = port,
         .handlers = handlers,
+        .not_found = NULL,
         .comm = comm
     };
 

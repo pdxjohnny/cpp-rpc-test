@@ -14,6 +14,7 @@ int test_client_contact_server () {
         .addr = addr,
         .port = port,
         .handlers = handlers,
+        .not_found = NULL,
         .comm = comm
     };
 
