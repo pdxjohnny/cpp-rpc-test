@@ -4,7 +4,7 @@ int main (int argc, char ** argv, char ** env) {
     int err;
 
     // Run the test function
-    printf("Hello rpc lib %d\n", rpc_test());
+    RPC_TEST_EQ(rpc_test(), 42);
 
     // Run all the tests
 
