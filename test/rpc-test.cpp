@@ -21,6 +21,7 @@ int main (int argc, char ** argv, char ** env) {
 #ifdef RPC_TEST_MESSAGE
     // Message Tests
     RPC_TEST(test_message_parse);
+    RPC_TEST(test_message_malloc_free_buffer);
 #endif
 
     return EXIT_SUCCESS;

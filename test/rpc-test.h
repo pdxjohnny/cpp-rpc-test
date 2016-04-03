@@ -43,4 +43,5 @@ int test_client_contact_server();
 
 // Message Tests
 int test_message_parse();
+int test_message_malloc_free_buffer();
 
