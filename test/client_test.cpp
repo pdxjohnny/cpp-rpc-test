@@ -6,14 +6,11 @@ int test_client_contact_server () {
     // Configure the server
     uint16_t port = 0;
     char addr[] = "127.0.0.1";
-    struct rpc_handler handlers[] = {
-        NULL
-    };
     int comm[2];
     struct rpc_server_config server_config = {
         .addr = addr,
         .port = port,
-        .handlers = handlers,
+        .handlers = NULL,
         .not_found = NULL,
         .comm = comm
     };

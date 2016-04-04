@@ -6,14 +6,11 @@ int test_server_correct_port() {
     // Configure the server
     uint16_t port = RPC_TEST_SERVER_CORRECT_PORT;
     char addr[] = "127.0.0.1";
-    struct rpc_handler handlers[] = {
-        NULL
-    };
     int comm[2];
     struct rpc_server_config server_config = {
         .addr = addr,
         .port = port,
-        .handlers = handlers,
+        .handlers = NULL,
         .not_found = NULL,
         .comm = comm
     };
@@ -39,14 +36,11 @@ int test_server_correct_handler() {
     // Configure the server
     uint16_t port = RPC_TEST_SERVER_CORRECT_PORT;
     char addr[] = "127.0.0.1";
-    struct rpc_handler handlers[] = {
-        NULL
-    };
     int comm[2];
     struct rpc_server_config server_config = {
         .addr = addr,
         .port = port,
-        .handlers = handlers,
+        .handlers = NULL,
         .not_found = NULL,
         .comm = comm
     };
