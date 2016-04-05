@@ -10,9 +10,24 @@ int handler_not_found(int client, struct rpc_message * msg) {
 }
 
 int handler_hello(int client, struct rpc_message * msg) {
-    printf("Hello handler called\n");
+    int err;
+    char name[100];
+    char response[200];
+    char reply[400];
 
-    char reply[] = "HTTP/1.1 200 OK\r\n\r\nHello World\r\n";
+    // Get the variable
+    err = rpc_field(msg, "name", name, 100);
+    if (err == -1) {
+        char err_no_name[] = "HTTP/1.1 400 OK\r\n\r\nBad Request\r\n";
+        write(client, err_no_name, strlen(err_no_name));
+        return EXIT_SUCCESS;
+    }
+
+    // Make the reply
+    sprintf(response, "Hello %s\n", name);
+    sprintf(reply, "HTTP/1.1 200 OK\r\nContent-Length: %ld\r\n\r\n%s", strlen(response), response);
+
+    // Send the reply
     write(client, reply, strlen(reply));
 
     return EXIT_SUCCESS;
