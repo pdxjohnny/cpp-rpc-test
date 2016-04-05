@@ -74,8 +74,25 @@ int test_rpc_message_parse_http_path() {
     rpc_message_init(&msg);
 
     // Headers on the stack for simplicity
-    char headers[] = "GET /path HTTP/1.1\r\n";
-    msg.headers = headers;
+    char headers_1[] = "GET /path HTTP/1.1\r\n";
+    msg.headers = headers_1;
+    msg.length_headers = strlen(msg.headers);
+
+    // Try parsing the request
+    err = rpc_message_parse_http_path(&msg);
+    if (err == -1) {
+        return err;
+    }
+
+    // Make sure that the message was parsed correctly
+    RPC_TEST_STR_EQ(msg.method, "path");
+
+    // Free the method
+    free(msg.method);
+
+    // Headers on the stack for simplicity
+    char headers_2[] = "GET /path?data=value HTTP/1.1\r\n";
+    msg.headers = headers_2;
     msg.length_headers = strlen(msg.headers);
 
     // Try parsing the request
