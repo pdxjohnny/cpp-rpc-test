@@ -46,6 +46,7 @@ int test_message_parse();
 int test_message_malloc_free_buffer();
 int test_rpc_message_parse_http_path();
 int test_rpc_message_parse_http_header();
-int test_rpc_message_parse_http_body();
+int test_rpc_message_parse_http_data();
 int test_rpc_message_parse_http_headers_too_long();
+int test_rpc_message_parse_http_data_path();
 

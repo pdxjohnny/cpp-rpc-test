@@ -1,7 +1,7 @@
 #include "rpc-test.h"
 
 const char get_request[] =
-        "GET /somemethod HTTP/1.1\r\n"
+        "GET /somemethod?data=value HTTP/1.1\r\n"
         "Host: 127.0.0.1:45311\r\n"
         "Connection: keep-alive\r\n"
         "Accept: text/html,application/xhtml+x�ml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n"
@@ -178,7 +178,7 @@ int test_rpc_message_parse_http_header() {
     return EXIT_SUCCESS;
 }
 
-int test_rpc_message_parse_http_body() {
+int test_rpc_message_parse_http_data() {
     // Create the message
     struct rpc_message msg;
     rpc_message_init(&msg);
@@ -222,6 +222,38 @@ int test_rpc_message_parse_http_headers_too_long() {
 
     // Make sure the right message was sent
     RPC_TEST_STR_EQ(response, RPC_REPLY_HTTP_413);
+
+    // Free the message
+    rpc_message_free(&msg);
+
+    return EXIT_SUCCESS;
+}
+
+int test_rpc_message_parse_http_data_path() {
+    int err;
+
+    // Create the message to parse into
+    struct rpc_message msg;
+    rpc_message_init(&msg);
+
+    // Headers on the stack for simplicity
+    char headers_2[] = "GET /path?data=value HTTP/1.1\r\n";
+    msg.headers = headers_2;
+    msg.length_headers = strlen(msg.headers);
+
+    // Try parsing the request
+    char value[20];
+    memset(value, 0, sizeof(value));
+    err = rpc_message_parse_http_data_path(&msg, "data", value, sizeof(value));
+    if (err == -1) {
+        return err;
+    }
+
+    // Make sure that the message was parsed correctly
+    RPC_TEST_STR_EQ(value, "value");
+
+    // So that we dont try to free the headers
+    msg.headers = NULL;
 
     // Free the message
     rpc_message_free(&msg);

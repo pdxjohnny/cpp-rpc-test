@@ -24,8 +24,9 @@ int main (int argc, char ** argv, char ** env) {
     RPC_TEST(test_message_malloc_free_buffer);
     RPC_TEST(test_rpc_message_parse_http_path);
     RPC_TEST(test_rpc_message_parse_http_header);
-    RPC_TEST(test_rpc_message_parse_http_body);
+    RPC_TEST(test_rpc_message_parse_http_data);
     RPC_TEST(test_rpc_message_parse_http_headers_too_long);
+    RPC_TEST(test_rpc_message_parse_http_data_path);
 #endif
 
     return EXIT_SUCCESS;
