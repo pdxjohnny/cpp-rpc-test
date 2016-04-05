@@ -27,6 +27,13 @@
     }\
 })
 
+#define RPC_TEST_FLOAT_EQ(var, should_be) \
+({\
+    if (var != should_be) {\
+        printf(#var " should have been " #should_be " but was \"%lf\"\n", var);\
+    }\
+})
+
 #define RPC_TEST_STR_EQ(var, should_be) \
 ({\
     if (0 != strcmp(var, should_be)) {\
@@ -49,4 +56,7 @@ int test_rpc_message_parse_http_header();
 int test_rpc_message_parse_http_data();
 int test_rpc_message_parse_http_headers_too_long();
 int test_rpc_message_parse_http_data_path();
+int test_rpc_field();
+int test_rpc_field_int();
+int test_rpc_field_float();
 

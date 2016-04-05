@@ -261,3 +261,103 @@ int test_rpc_message_parse_http_data_path() {
     return EXIT_SUCCESS;
 }
 
+int test_rpc_field() {
+    int err;
+
+    // Create the message to parse into
+    struct rpc_message msg;
+    rpc_message_init(&msg);
+    msg.protocol = RPC_PROTOCOL_HTTP;
+
+    // Headers on the stack for simplicity
+    char headers_2[] = "GET /path?data=value HTTP/1.1\r\n";
+    msg.headers = headers_2;
+    msg.length_headers = strlen(msg.headers);
+
+    // Try parsing the request
+    char key[] = "data";
+    char value[20];
+    memset(value, 0, sizeof(value));
+    err = rpc_field(&msg, key, value, sizeof(value));
+    if (err == -1) {
+        return err;
+    }
+
+    // Make sure that the message was parsed correctly
+    RPC_TEST_STR_EQ(value, "value");
+
+    // So that we dont try to free the headers
+    msg.headers = NULL;
+
+    // Free the message
+    rpc_message_free(&msg);
+
+    return EXIT_SUCCESS;
+}
+
+int test_rpc_field_int() {
+    int err;
+
+    // Create the message to parse into
+    struct rpc_message msg;
+    rpc_message_init(&msg);
+    msg.protocol = RPC_PROTOCOL_HTTP;
+
+    // Headers on the stack for simplicity
+    char headers_2[] = "GET /path?data=42 HTTP/1.1\r\n";
+    msg.headers = headers_2;
+    msg.length_headers = strlen(msg.headers);
+
+    // Try parsing the request
+    char key[] = "data";
+    int value;
+    err = rpc_field_int(&msg, key, &value, 20);
+    if (err == -1) {
+        return err;
+    }
+
+    // Make sure that the message was parsed correctly
+    RPC_TEST_EQ(value, 42);
+
+    // So that we dont try to free the headers
+    msg.headers = NULL;
+
+    // Free the message
+    rpc_message_free(&msg);
+
+    return EXIT_SUCCESS;
+}
+
+int test_rpc_field_float() {
+    int err;
+
+    // Create the message to parse into
+    struct rpc_message msg;
+    rpc_message_init(&msg);
+    msg.protocol = RPC_PROTOCOL_HTTP;
+
+    // Headers on the stack for simplicity
+    char headers_2[] = "GET /path?data=4.2 HTTP/1.1\r\n";
+    msg.headers = headers_2;
+    msg.length_headers = strlen(msg.headers);
+
+    // Try parsing the request
+    char key[] = "data";
+    float value;
+    err = rpc_field_float(&msg, key, &value, 20);
+    if (err == -1) {
+        return err;
+    }
+
+    // Make sure that the message was parsed correctly
+    RPC_TEST_FLOAT_EQ(value, (float)4.2);
+
+    // So that we dont try to free the headers
+    msg.headers = NULL;
+
+    // Free the message
+    rpc_message_free(&msg);
+
+    return EXIT_SUCCESS;
+}
+
