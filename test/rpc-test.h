@@ -23,14 +23,14 @@
 #define RPC_TEST_EQ(var, should_be) \
 ({\
     if (var != should_be) {\
-        printf(#var " should have been " #should_be "\n");\
+        printf(#var " should have been " #should_be " but was \"%x\"\n", var);\
     }\
 })
 
 #define RPC_TEST_STR_EQ(var, should_be) \
 ({\
     if (0 != strcmp(var, should_be)) {\
-        printf(#var " should have been " #should_be "\n");\
+        printf(#var " should have been " #should_be " but was \"%s\"\n", var);\
     }\
 })
 
@@ -45,4 +45,5 @@ int test_client_contact_server();
 int test_message_parse();
 int test_message_malloc_free_buffer();
 int test_rpc_message_parse_http_path();
+int test_rpc_message_parse_http_header();
 

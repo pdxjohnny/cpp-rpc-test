@@ -96,3 +96,54 @@ int test_rpc_message_parse_http_path() {
     return EXIT_SUCCESS;
 }
 
+int test_rpc_message_parse_http_header() {
+    int err;
+    char header[100];
+
+    // Create the message to parse into
+    struct rpc_message msg;
+    rpc_message_init(&msg);
+
+    // Headers on the stack for simplicity
+    msg.headers = (char *)get_request;
+    msg.length_headers = strlen(msg.headers);
+
+    // Try parsing the request
+    memset(header, 0, sizeof(header));
+    err = rpc_message_parse_http_header(&msg, "Host", header, 100);
+    if (err == -1) {
+        return err;
+    }
+
+    // Make sure that the message was parsed correctly
+    RPC_TEST_STR_EQ(header, "127.0.0.1:45311");
+
+    // Try parsing the request
+    memset(header, 0, sizeof(header));
+    err = rpc_message_parse_http_header(&msg, "Connection", header, 100);
+    if (err == -1) {
+        return err;
+    }
+
+    // Make sure that the message was parsed correctly
+    RPC_TEST_STR_EQ(header, "keep-alive");
+
+    // Try parsing the request
+    memset(header, 0, sizeof(header));
+    err = rpc_message_parse_http_header(&msg, "Accept-Encoding", header, 100);
+    if (err == -1) {
+        return err;
+    }
+
+    // Make sure that the message was parsed correctly
+    RPC_TEST_STR_EQ(header, "gzip, deflate, sdch");
+
+    // So that we dont try to free the headers
+    msg.headers = NULL;
+
+    // Free the message
+    rpc_message_free(&msg);
+
+    return EXIT_SUCCESS;
+}
+

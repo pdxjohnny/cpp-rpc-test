@@ -23,6 +23,7 @@ int main (int argc, char ** argv, char ** env) {
     RPC_TEST(test_message_parse);
     RPC_TEST(test_message_malloc_free_buffer);
     RPC_TEST(test_rpc_message_parse_http_path);
+    RPC_TEST(test_rpc_message_parse_http_header);
 #endif
 
     return EXIT_SUCCESS;
