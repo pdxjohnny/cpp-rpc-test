@@ -179,29 +179,15 @@ int test_rpc_message_parse_http_header() {
 }
 
 int test_rpc_message_parse_http_body() {
-    int err;
-    char header[100];
-
-    // Create the message to parse into
+    // Create the message
     struct rpc_message msg;
     rpc_message_init(&msg);
 
-    // Headers on the stack for simplicity
-    msg.headers = (char *)get_request;
-    msg.length_headers = strlen(msg.headers);
-
     // Try parsing the request
-    memset(header, 0, sizeof(header));
-    err = rpc_message_parse_http_header(&msg, "Host", header, 100);
-    if (err == -1) {
-        return err;
-    }
+    rpc_message_parse_http(&msg, post_request, strlen(post_request));
 
-    // Make sure that the message was parsed correctly
-    RPC_TEST_STR_EQ(header, "127.0.0.1:45311");
-
-    // So that we dont try to free the headers
-    msg.headers = NULL;
+    // Make sure the right message was sent
+    RPC_TEST_STR_EQ(msg.buffer, "data=value");
 
     // Free the message
     rpc_message_free(&msg);
@@ -211,7 +197,10 @@ int test_rpc_message_parse_http_body() {
 
 int test_rpc_message_parse_http_headers_too_long() {
     char buffer[RPC_MSG_HTTP_MAX_HEADER_LENGTH + 1];
-    memset(buffer, 'a', RPC_MSG_HTTP_MAX_HEADER_LENGTH);
+    int i;
+    for (i = 0; i <= RPC_MSG_HTTP_MAX_HEADER_LENGTH; ++i) {
+        buffer[i] = 'a';
+    }
     buffer[RPC_MSG_HTTP_MAX_HEADER_LENGTH + 1] = '\0';
 
     // Create the message
@@ -224,7 +213,7 @@ int test_rpc_message_parse_http_headers_too_long() {
     msg.client = pipe_fd[RPC_COMM_WRITE];
 
     // Try parsing the request
-    rpc_message_parse_http(&msg, buffer, strlen(buffer) + 1);
+    rpc_message_parse_http(&msg, buffer, RPC_MSG_HTTP_MAX_HEADER_LENGTH + 1);
 
     // Read the response
     char response[200];
