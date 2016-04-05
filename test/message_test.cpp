@@ -12,6 +12,20 @@ const char get_request[] =
         "Accept-Language: en-US,en;q=0.8\r\n"
         "\r\n";
 
+const char post_request[] =
+        "GET /somemethod HTTP/1.1\r\n"
+        "Host: 127.0.0.1:45311\r\n"
+        "Connection: keep-alive\r\n"
+        "Accept: text/html,application/xhtml+x�ml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\n"
+        "Upgrade-Insecure-Requests: 1\r\n"
+        "User-Agent: Mozilla/5.0� (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.110 Safari/537.36\r\n"
+        "DNT:� 1\r\n"
+        "Accept-Encoding: gzip, deflate, sdch\r\n"
+        "Accept-Language: en-US,en;q=0.8\r\n"
+        "Content-Length: 10\r\n"
+        "\r\n"
+        "data=value";
+
 int test_message_malloc_free_buffer() {
     char request_1[] =
         "GET /somemethod HTTP/1.1\r\n"
@@ -157,6 +171,68 @@ int test_rpc_message_parse_http_header() {
 
     // So that we dont try to free the headers
     msg.headers = NULL;
+
+    // Free the message
+    rpc_message_free(&msg);
+
+    return EXIT_SUCCESS;
+}
+
+int test_rpc_message_parse_http_body() {
+    int err;
+    char header[100];
+
+    // Create the message to parse into
+    struct rpc_message msg;
+    rpc_message_init(&msg);
+
+    // Headers on the stack for simplicity
+    msg.headers = (char *)get_request;
+    msg.length_headers = strlen(msg.headers);
+
+    // Try parsing the request
+    memset(header, 0, sizeof(header));
+    err = rpc_message_parse_http_header(&msg, "Host", header, 100);
+    if (err == -1) {
+        return err;
+    }
+
+    // Make sure that the message was parsed correctly
+    RPC_TEST_STR_EQ(header, "127.0.0.1:45311");
+
+    // So that we dont try to free the headers
+    msg.headers = NULL;
+
+    // Free the message
+    rpc_message_free(&msg);
+
+    return EXIT_SUCCESS;
+}
+
+int test_rpc_message_parse_http_headers_too_long() {
+    char buffer[RPC_MSG_HTTP_MAX_HEADER_LENGTH + 1];
+    memset(buffer, 'a', RPC_MSG_HTTP_MAX_HEADER_LENGTH);
+    buffer[RPC_MSG_HTTP_MAX_HEADER_LENGTH + 1] = '\0';
+
+    // Create the message
+    struct rpc_message msg;
+    rpc_message_init(&msg);
+
+    // Message needs a "socket" to write response to
+    int pipe_fd[2];
+    pipe(pipe_fd);
+    msg.client = pipe_fd[RPC_COMM_WRITE];
+
+    // Try parsing the request
+    rpc_message_parse_http(&msg, buffer, strlen(buffer) + 1);
+
+    // Read the response
+    char response[200];
+    memset(response, 0, sizeof(response));
+    read(pipe_fd[RPC_COMM_READ], response, 200);
+
+    // Make sure the right message was sent
+    RPC_TEST_STR_EQ(response, RPC_REPLY_HTTP_413);
 
     // Free the message
     rpc_message_free(&msg);
